@@ -1,22 +1,35 @@
 #include <iostream>
+#include <fstream>
 #include <pqxx/pqxx> 
 
 using namespace std;
 using namespace pqxx;
 
-const string DB_NAME = "test14";
-const string USER = "postgres";
-const string PASSWORD = "22rfrnec";
-const string HOST = "127.0.0.1";
-const string PORT = "5432";
+const string CONN_FILE = "connection.data";
+
+void readParamsFromFile(const string filename, 
+	string &dbName, string &user, 
+	string &password, string &host, string &port)
+{
+	ifstream in(CONN_FILE);
+    
+    if (in.is_open()) {
+        in >> dbName >> user >> password >> host >> port;
+    }
+
+    in.close();
+}
 
 string formConnStr()
 {
-	string 	connStr = "dbname = " + DB_NAME;
-			connStr += " user = " + USER;
-			connStr += " password = " + PASSWORD;
-			connStr += " hostaddr = " + HOST;
-			connStr += " port = " + PORT;
+	string dbName, user, password, host, port;
+	readParamsFromFile(CONN_FILE, dbName, user, password, host, port);
+
+	string 	connStr = "dbname = " + dbName;
+			connStr += " user = " + user;
+			connStr += " password = " + password;
+			connStr += " hostaddr = " + host;
+			connStr += " port = " + port;
 
 	return connStr;
 }
