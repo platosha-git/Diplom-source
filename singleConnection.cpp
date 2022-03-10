@@ -1,60 +1,47 @@
 #include <iostream>
 #include <fstream>
-#include <pqxx/pqxx> 
+#include "libpq-fe.h"
 
 using namespace std;
-using namespace pqxx;
 
 const string CONN_FILE = "connection.data";
 
 void readParamsFromFile(const string filename, 
-	string &dbName, string &user, 
-	string &password, string &host, string &port)
+	string &host, string &port, 
+	string &dbName, string &user, string &password)
 {
 	ifstream in(CONN_FILE);
     
     if (in.is_open()) {
-        in >> dbName >> user >> password >> host >> port;
+        in >> host >> port >> dbName >> user >> password;
     }
 
     in.close();
 }
 
-string formConnStr()
+int main(void) 
 {
-	string dbName, user, password, host, port;
-	readParamsFromFile(CONN_FILE, dbName, user, password, host, port);
-
-	string 	connStr = "dbname = " + dbName;
-			connStr += " user = " + user;
-			connStr += " password = " + password;
-			connStr += " hostaddr = " + host;
-			connStr += " port = " + port;
-
-	return connStr;
-}
-
-int main(int argc, char* argv[]) 
-{
-	string connStr = formConnStr();
+	string host, port, dbName, user, password;
+	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
 
 	try {
-    	connection C(connStr);
+    	PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), 
+    		nullptr, nullptr, dbName.c_str(), user.c_str(), password.c_str());
 
-      	if (C.is_open()) {
-         	cout << "Opened database successfully: " << C.dbname() << endl;
+      	if (PQstatus(conn) == CONNECTION_OK) {
+         	cout << "Opened database successfully: " << PQdb(conn) << endl;
       	} 
       	else {
-         	cout << "Can't open database" << endl;
+         	cout << "Can't open database: " << PQerrorMessage(conn) << endl;
          	return 1;
       	}
 
-      	C.disconnect ();
+      	PQfinish(conn);
       	return 0;
-
    	} 
-   	catch (const std::exception &e) {
-      	cerr << e.what() << std::endl;
+
+   	catch (const std::exception &er) {
+      	cerr << er.what() << endl;
       	return 1;
    	}
 }
