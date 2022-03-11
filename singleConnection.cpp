@@ -1,10 +1,12 @@
 #include <iostream>
 #include <fstream>
+#include <ctime>
 #include "libpq-fe.h"
 
 using namespace std;
 
 const string CONN_FILE = "connection.data";
+const string OUT_FILE = "results.txt";
 
 void readParamsFromFile(const string filename, 
 	string &host, string &port, 
@@ -19,24 +21,41 @@ void readParamsFromFile(const string filename,
     in.close();
 }
 
+void writeParamsToFile(const string filename,
+	const string dbName, const double seconds)
+{
+	ofstream out(OUT_FILE);
+
+	if (out.is_open()) {
+		out << dbName << endl;
+		out << seconds << endl;
+	}
+
+	out.close();
+
+	cout << "Data was written to file!\n";
+}
+
 int main(void) 
 {
 	string host, port, dbName, user, password;
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
 
 	try {
-    	PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), 
-    		nullptr, nullptr, dbName.c_str(), user.c_str(), password.c_str());
+		clock_t begin = clock();
+    	PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
+    								dbName.c_str(), user.c_str(), password.c_str());
+    	clock_t end = clock();
 
-      	if (PQstatus(conn) == CONNECTION_OK) {
-         	cout << "Opened database successfully: " << PQdb(conn) << endl;
-      	} 
-      	else {
-         	cout << "Can't open database: " << PQerrorMessage(conn) << endl;
+      	if (PQstatus(conn) != CONNECTION_OK) {
+      		PQfinish(conn);
+      		cout << "Can't open database: " << PQerrorMessage(conn) << endl;
          	return 1;
-      	}
+        }
+      	
+      	double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
+      	writeParamsToFile(OUT_FILE, PQdb(conn), seconds);	
 
-      	PQfinish(conn);
       	return 0;
    	} 
 
