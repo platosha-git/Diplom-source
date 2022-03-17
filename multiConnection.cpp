@@ -1,12 +1,13 @@
 #include <iostream>
 #include <fstream>
+#include <thread>
 #include <ctime>
 #include "libpq-fe.h"
 
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection10.data";
-const string OUT_FILE = "results/results.txt";
+const string OUT_FILE = "results/resultsMulti.txt";
 
 void readParamsFromFile(const string filename, 
 	string &host, string &port, 
@@ -36,33 +37,34 @@ void writeParamsToFile(const string filename,
 	cout << "Data was written to file!\n";
 }
 
+void connectFunction(const string host, const string port, const string dbName, 
+					 const string user, const string password)
+{
+	PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
+    									dbName.c_str(), user.c_str(), password.c_str());
+
+    if (PQstatus(conn) != CONNECTION_OK) {
+    	cout << "Can't open database: " << PQerrorMessage(conn) << endl;
+    }
+
+    PQfinish(conn);
+}
+
 int main(void) 
 {
 	string host, port, dbName, user, password;
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
 
 	try {
-		PGconn *conn = nullptr;
-
 		clock_t begin = clock();
-
-		for (int i = 0; i < 5; i++) {
-    		conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
-    									dbName.c_str(), user.c_str(), password.c_str());
-
-      		if (PQstatus(conn) != CONNECTION_OK) {
-      			PQfinish(conn);
-      			cout << "Can't open database: " << PQerrorMessage(conn) << endl;
-         		return 1;
-        	}
-
-        	PQfinish(conn);
-        }
-      	
-      	clock_t end = clock();
+	    	thread thr1(connectFunction, host, port, dbName, user, password);
+	    	thread thr2(connectFunction, host, port, dbName, user, password);
+	    	
+	    	thr1.join();
+	    	thr2.join();
+    	clock_t end = clock();
       	
       	double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
-      	//writeParamsToFile(OUT_FILE, PQdb(conn), seconds);	
       	writeParamsToFile(OUT_FILE, "conn10", seconds);	
 
       	return 0;
