@@ -6,8 +6,9 @@
 
 using namespace std;
 
-const string CONN_FILE = "connection_data/connection10.data";
+const string CONN_FILE = "connection_data/connection.data";
 const string OUT_FILE = "results/resultsMulti.txt";
+const int NUM_CONNECTS = 10;
 
 void readParamsFromFile(const string filename, 
 	string &host, string &port, 
@@ -22,13 +23,11 @@ void readParamsFromFile(const string filename,
     in.close();
 }
 
-void writeParamsToFile(const string filename,
-	const string dbName, const double seconds)
+void writeParamsToFile(const string filename, const double seconds)
 {
 	ofstream out(OUT_FILE);
 
 	if (out.is_open()) {
-		out << dbName << endl;
 		out << seconds << endl;
 	}
 
@@ -56,16 +55,22 @@ int main(void)
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
 
 	try {
+		thread thr[NUM_CONNECTS];
+
 		clock_t begin = clock();
-	    	thread thr1(connectFunction, host, port, dbName, user, password);
-	    	thread thr2(connectFunction, host, port, dbName, user, password);
-	    	
-	    	thr1.join();
-	    	thr2.join();
+
+			for (int i = 0; i < NUM_CONNECTS; i++) {
+				thr[i] = thread(connectFunction, host, port, dbName, user, password);
+			}
+
+			for (int i = 0; i < NUM_CONNECTS; i++) {
+				thr[i].join();
+			}
+
     	clock_t end = clock();
       	
       	double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
-      	writeParamsToFile(OUT_FILE, "conn10", seconds);	
+      	writeParamsToFile(OUT_FILE, seconds);	
 
       	return 0;
    	} 

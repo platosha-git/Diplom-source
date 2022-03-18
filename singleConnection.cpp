@@ -5,8 +5,9 @@
 
 using namespace std;
 
-const string CONN_FILE = "connection_data/connection10.data";
-const string OUT_FILE = "results/results.txt";
+const string CONN_FILE = "connection_data/connection.data";
+const string OUT_FILE = "results/resultsSingle.txt";
+const int NUM_CONNECTS = 10;
 
 void readParamsFromFile(const string filename, 
 	string &host, string &port, 
@@ -21,13 +22,11 @@ void readParamsFromFile(const string filename,
     in.close();
 }
 
-void writeParamsToFile(const string filename,
-	const string dbName, const double seconds)
+void writeParamsToFile(const string filename, const double seconds)
 {
 	ofstream out(OUT_FILE);
 
 	if (out.is_open()) {
-		out << dbName << endl;
 		out << seconds << endl;
 	}
 
@@ -42,12 +41,10 @@ int main(void)
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
 
 	try {
-		PGconn *conn = nullptr;
-
 		clock_t begin = clock();
 
-		for (int i = 0; i < 5; i++) {
-    		conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
+		for (int i = 0; i < NUM_CONNECTS; i++) {
+    		PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
     									dbName.c_str(), user.c_str(), password.c_str());
 
       		if (PQstatus(conn) != CONNECTION_OK) {
@@ -62,8 +59,7 @@ int main(void)
       	clock_t end = clock();
       	
       	double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
-      	//writeParamsToFile(OUT_FILE, PQdb(conn), seconds);	
-      	writeParamsToFile(OUT_FILE, "conn10", seconds);	
+      	writeParamsToFile(OUT_FILE, seconds);	
 
       	return 0;
    	} 
