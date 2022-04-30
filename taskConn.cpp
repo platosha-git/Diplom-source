@@ -36,17 +36,13 @@ void writeParamsToFile(const string filename, const double seconds)
 	cout << "Data was written to file!\n";
 }
 
-void connectFunction(const string host, const string port, const string dbName, 
-					 const string user, const string password)
+void connectFunction(PGconn *conn)
 {
-	PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
-    									dbName.c_str(), user.c_str(), password.c_str());
-
-    if (PQstatus(conn) != CONNECTION_OK) {
+	if (PQstatus(conn) != CONNECTION_OK) {
     	cout << "Can't open database: " << PQerrorMessage(conn) << endl;
     }
     else {
-    	cout << "DB opened!" << endl;
+    	cout << "Thread function!\n";
     	PGresult *res = PQexec(conn, "select * from pg_database;");
 
     	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
@@ -54,12 +50,9 @@ void connectFunction(const string host, const string port, const string dbName,
 	        PQclear(res);
 	        return;
 	    }
-    	
-    	cout << res << endl;
+    
     	PQclear(res);
     }
-
-    PQfinish(conn);
 }
 
 int main(void) 
@@ -72,13 +65,18 @@ int main(void)
 
 		clock_t begin = clock();
 
+			PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
+    									dbName.c_str(), user.c_str(), password.c_str());
+
 			for (int i = 0; i < NUM_CONNECTS; i++) {
-				thr[i] = thread(connectFunction, host, port, dbName, user, password);
+				thr[i] = thread(connectFunction, conn);
 			}
 
 			for (int i = 0; i < NUM_CONNECTS; i++) {
 				thr[i].join();
 			}
+
+			PQfinish(conn);
 
     	clock_t end = clock();
       	
