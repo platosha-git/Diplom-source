@@ -7,25 +7,28 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/resultsMulti.txt";
-const int NUM_CONNECTS = 10;
+const string OUT_FILE = "results/resultsMulti500.txt";
+
+const int NUM_CONNECTS = 500;
+const char *QUERY = "SELECT * FROM pg_database;";
 
 void readParamsFromFile(const string filename, 
 	string &host, string &port, 
 	string &dbName, string &user, string &password)
 {
 	ifstream in(CONN_FILE);
-    
-    if (in.is_open()) {
-        in >> host >> port >> dbName >> user >> password;
-    }
+	
+	if (in.is_open()) {
+		in >> host >> port >> dbName >> user >> password;
+	}
 
-    in.close();
+	in.close();
 }
 
 void writeParamsToFile(const string filename, const double seconds)
 {
-	ofstream out(OUT_FILE);
+	ofstream out;
+	out.open(filename, ios::app);
 
 	if (out.is_open()) {
 		out << seconds << endl;
@@ -40,24 +43,23 @@ void connectFunction(const string host, const string port, const string dbName,
 					 const string user, const string password)
 {
 	PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
-    									dbName.c_str(), user.c_str(), password.c_str());
+										dbName.c_str(), user.c_str(), password.c_str());
 
-    if (PQstatus(conn) != CONNECTION_OK) {
-    	PQfinish(conn);
-    	cout << "Can't open database: " << PQerrorMessage(conn) << endl;
-    	return;
-    }
+	if (PQstatus(conn) != CONNECTION_OK) {
+		PQfinish(conn);
+		cout << "Can't open database: " << PQerrorMessage(conn) << endl;
+		return;
+	}
 
-	PGresult *res = PQexec(conn, "select * from pg_database;");
+	PGresult *res = PQexec(conn, QUERY);
 	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        cout <<  PQerrorMessage(conn);
-        PQclear(res);
-        cout << "Database query completed with an error: " << PQresultStatus(res) << endl;
-        return;
-    }
+		PQclear(res);
+		cout << "Database query completed with an error: " << PQresultStatus(res) << endl;
+		return;
+	}
 	
 	PQclear(res);
-    PQfinish(conn);
+	PQfinish(conn);
 }
 
 int main(void) 
@@ -78,16 +80,16 @@ int main(void)
 				thr[i].join();
 			}
 
-    	clock_t end = clock();
-      	
-      	double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
-      	writeParamsToFile(OUT_FILE, seconds);	
+		clock_t end = clock();
+		
+		double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
+		writeParamsToFile(OUT_FILE, seconds);	
 
-      	return 0;
-   	} 
+		return 0;
+	} 
 
-   	catch (const std::exception &er) {
-      	cerr << er.what() << endl;
-      	return 1;
-   	}
+	catch (const std::exception &er) {
+		cerr << er.what() << endl;
+		return 1;
+	}
 }

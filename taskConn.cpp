@@ -8,25 +8,28 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/resultsMulti.txt";
-const int NUM_CONNECTS = 5;
+const string OUT_FILE = "results/resultsTask250.txt";
+
+const int NUM_CONNECTS = 250;
+const char *QUERY = "SELECT * FROM pg_database;";
 
 void readParamsFromFile(const string filename, 
 	string &host, string &port, 
 	string &dbName, string &user, string &password)
 {
 	ifstream in(filename);
-    
-    if (in.is_open()) {
-        in >> host >> port >> dbName >> user >> password;
-    }
+	
+	if (in.is_open()) {
+		in >> host >> port >> dbName >> user >> password;
+	}
 
-    in.close();
+	in.close();
 }
 
 void writeParamsToFile(const string filename, const double seconds)
 {
-	ofstream out(filename);
+	ofstream out;
+	out.open(filename, ios::app);
 
 	if (out.is_open()) {
 		out << seconds << endl;
@@ -40,18 +43,18 @@ void writeParamsToFile(const string filename, const double seconds)
 void connectFunction(PGconn *conn, const int idx)
 {
 	if (PQstatus(conn) != CONNECTION_OK) {
-    	cout << "Can't open database: " << PQerrorMessage(conn) << endl;
-    }
-    else {
-    	cout << "Thread function!\n";
-    	PGresult *res = PQexecThread(conn, "select * from pg_database;");
+		cout << "Can't open database: " << PQerrorMessage(conn) << endl;
+		return;
+	}
 
-    	cout << "Idx: " << idx << endl;
-    	cout << "Res status: " << PQresultStatus(res) << endl;
-    	cout << "Error message: " << PQerrorMessage(conn) << endl;
-    
-    	PQclear(res);
-    }
+	PGresult *res = PQexecThread(conn, QUERY);
+	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+		PQclear(res);
+		cout << "Database query completed with an error: " << PQresultStatus(res) << endl;
+		return;
+	}
+
+	PQclear(res);
 }
 
 int main(void) 
@@ -65,7 +68,7 @@ int main(void)
 		clock_t begin = clock();
 
 			PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
-    									dbName.c_str(), user.c_str(), password.c_str());
+										dbName.c_str(), user.c_str(), password.c_str());
 
 			for (int i = 0; i < NUM_CONNECTS; i++) {
 				thr[i] = thread(connectFunction, conn, i);
@@ -77,16 +80,16 @@ int main(void)
 
 			PQfinish(conn);
 
-    	clock_t end = clock();
-      	
-      	double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
-      	writeParamsToFile(OUT_FILE, seconds);	
+		clock_t end = clock();
+		
+		double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
+		writeParamsToFile(OUT_FILE, seconds);	
 
-      	return 0;
-   	} 
+		return 0;
+	} 
 
-   	catch (const std::exception &er) {
-      	cerr << er.what() << endl;
-      	return 1;
-   	}
+	catch (const std::exception &er) {
+		cerr << er.what() << endl;
+		return 1;
+	}
 }

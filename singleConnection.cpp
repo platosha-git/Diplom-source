@@ -6,10 +6,10 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/resultsSingle.txt";
+const string OUT_FILE = "results/resultsSingle250.txt";
 
-const int NUM_CONNECTS = 10;
-const char *QUERY = "select * from pg_database;";
+const int NUM_CONNECTS = 250;
+const char *QUERY = "SELECT * FROM pg_database;";
 
 
 void readParamsFromFile(const string filename, 
@@ -27,7 +27,8 @@ void readParamsFromFile(const string filename,
 
 void writeParamsToFile(const string filename, const double seconds)
 {
-	ofstream out(OUT_FILE);
+	ofstream out;
+	out.open(filename, ios::app);
 
 	if (out.is_open()) {
 		out << seconds << endl;
