@@ -1,1 +1,4 @@
-g++ -I/usr/local/pgsql/include taskConn.cpp -lpqxx -lpq -pthread
+g++ \
+-I/usr/local/pgsql/include \
+taskConn.cpp \
+-lpq -pthread

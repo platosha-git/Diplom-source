@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include <mutex>
 #include <ctime>
 #include "libpq-fe.h"
 
@@ -8,13 +9,13 @@ using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
 const string OUT_FILE = "results/resultsMulti.txt";
-const int NUM_CONNECTS = 10;
+const int NUM_CONNECTS = 5;
 
 void readParamsFromFile(const string filename, 
 	string &host, string &port, 
 	string &dbName, string &user, string &password)
 {
-	ifstream in(CONN_FILE);
+	ifstream in(filename);
     
     if (in.is_open()) {
         in >> host >> port >> dbName >> user >> password;
@@ -25,7 +26,7 @@ void readParamsFromFile(const string filename,
 
 void writeParamsToFile(const string filename, const double seconds)
 {
-	ofstream out(OUT_FILE);
+	ofstream out(filename);
 
 	if (out.is_open()) {
 		out << seconds << endl;
@@ -36,20 +37,18 @@ void writeParamsToFile(const string filename, const double seconds)
 	cout << "Data was written to file!\n";
 }
 
-void connectFunction(PGconn *conn)
+void connectFunction(PGconn *conn, const int idx)
 {
 	if (PQstatus(conn) != CONNECTION_OK) {
     	cout << "Can't open database: " << PQerrorMessage(conn) << endl;
     }
     else {
     	cout << "Thread function!\n";
-    	PGresult *res = PQexec(conn, "select * from pg_database;");
+    	PGresult *res = PQexecThread(conn, "select * from pg_database;");
 
-    	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-	        cout <<  PQerrorMessage(conn);
-	        PQclear(res);
-	        return;
-	    }
+    	cout << "Idx: " << idx << endl;
+    	cout << "Res status: " << PQresultStatus(res) << endl;
+    	cout << "Error message: " << PQerrorMessage(conn) << endl;
     
     	PQclear(res);
     }
@@ -69,7 +68,7 @@ int main(void)
     									dbName.c_str(), user.c_str(), password.c_str());
 
 			for (int i = 0; i < NUM_CONNECTS; i++) {
-				thr[i] = thread(connectFunction, conn);
+				thr[i] = thread(connectFunction, conn, i);
 			}
 
 			for (int i = 0; i < NUM_CONNECTS; i++) {

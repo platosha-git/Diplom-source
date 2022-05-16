@@ -43,22 +43,20 @@ void connectFunction(const string host, const string port, const string dbName,
     									dbName.c_str(), user.c_str(), password.c_str());
 
     if (PQstatus(conn) != CONNECTION_OK) {
+    	PQfinish(conn);
     	cout << "Can't open database: " << PQerrorMessage(conn) << endl;
-    }
-    else {
-    	cout << "DB opened!" << endl;
-    	PGresult *res = PQexec(conn, "select * from pg_database;");
-
-    	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-	        cout <<  PQerrorMessage(conn);
-	        PQclear(res);
-	        return;
-	    }
-    	
-    	cout << res << endl;
-    	PQclear(res);
+    	return;
     }
 
+	PGresult *res = PQexec(conn, "select * from pg_database;");
+	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        cout <<  PQerrorMessage(conn);
+        PQclear(res);
+        cout << "Database query completed with an error: " << PQresultStatus(res) << endl;
+        return;
+    }
+	
+	PQclear(res);
     PQfinish(conn);
 }
 
