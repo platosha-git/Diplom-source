@@ -6,10 +6,10 @@
 
 using namespace std;
 
-const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/multi10.txt";
+const string CONN_FILE = "connection_data/connectionBouncer.data";
+const string OUT_FILE = "results/bouncer10.txt";
 
-const int NUM_CONNECTS = 1;
+const int NUM_CONNECTS = 10;
 const char *QUERY = "SELECT * FROM pg_database;";
 
 void readParamsFromFile(const string filename, 

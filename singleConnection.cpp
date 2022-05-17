@@ -57,7 +57,7 @@ int main(void)
 				return 1;
 			}
 
-			PGresult *res = PQexecThread(conn, QUERY);
+			PGresult *res = PQexec(conn, QUERY);
 			if (PQresultStatus(res) != PGRES_TUPLES_OK) {
 				PQclear(res);
 				cout << "Database query completed with an error: " << PQresultStatus(res) << endl;
