@@ -7,9 +7,9 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connectionBouncer.data";
-const string OUT_FILE = "results/bouncer10.txt";
+const string OUT_FILE = "results/bouncer50.txt";
 
-const int NUM_CONNECTS = 10;
+const int NUM_CONNECTS = 50;
 const char *QUERY = "SELECT * FROM pg_database;";
 
 void readParamsFromFile(const string filename, 
