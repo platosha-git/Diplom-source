@@ -25,7 +25,7 @@ private:
     condition_variable m_condition;
     queue<shared_ptr<PGConnection>> m_pool;
 
-    const int POOL_SIZE = 100;
+    const int POOL_SIZE = 500;
 };
 
 #endif //PGBACKEND_H

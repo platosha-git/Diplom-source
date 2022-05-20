@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const string OUT_FILE = "/home/platosha/Desktop/BMSTU/8sem/Diplom-source/results/hpool500.txt";
+const string OUT_FILE = "/home/platosha/Desktop/BMSTU/8sem/Diplom-source/results/ddos/pool500.txt";
 
 const int NUM_CONNECTS = 500;
 const char *QUERY = "SELECT * FROM pg_database;";

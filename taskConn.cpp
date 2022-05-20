@@ -8,9 +8,9 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/resultsTask250.txt";
+const string OUT_FILE = "results/ddos/task500.txt";
 
-const int NUM_CONNECTS = 250;
+const int NUM_CONNECTS = 500;
 const char *QUERY = "SELECT * FROM pg_database;";
 
 void readParamsFromFile(const string filename, 
