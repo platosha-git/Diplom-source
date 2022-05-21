@@ -6,7 +6,7 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/resultsSingle250.txt";
+const string OUT_FILE = "results/single250.txt";
 
 const int NUM_CONNECTS = 250;
 const char *QUERY = "SELECT * FROM pg_database;";
