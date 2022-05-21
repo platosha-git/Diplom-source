@@ -5,9 +5,9 @@
 
 using namespace std;
 
-const string OUT_FILE = "/home/platosha/Desktop/BMSTU/8sem/Diplom-source/results/ddos/pool500.txt";
+const string OUT_FILE = "/home/platosha/Desktop/BMSTU/8sem/Diplom-source/results/ddos/pool10.txt";
 
-const int NUM_CONNECTS = 500;
+const int NUM_CONNECTS = 10;
 const char *QUERY = "SELECT * FROM pg_database;";
 
 void writeParamsToFile(const string filename, const double seconds)
