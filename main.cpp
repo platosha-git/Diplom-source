@@ -37,8 +37,8 @@ void outputTable(const int numConn,
 {
 	cout << endl << numConn << " connects\n";
 
-	cout << "            Time     |    Memory    \n";
-	cout << "------------------------------------\n";
+	cout << "            Time     \n";
+	cout << "------------------\n";
 	cout << "single    " << single << endl;
 	cout << "multi     " << multi << endl;
 	cout << "pool      " << pool << endl;
@@ -102,14 +102,14 @@ int main(void)
 			break;
 		}
 		case(compare): {
-			double resS = singleConn(numConnects);
-			double resM = multiConn(numConnects);
-			double resP = poolConn(numConnects);
-			double resC = customConn(numConnects);
-			outputTable(numConnects, resS, resM, resP, resC);
+			double ts = singleConn(numConnects);
+			double tm = multiConn(numConnects);
+			double tp = poolConn(numConnects);
+			double tc = customConn(numConnects);
+
+			outputTable(numConnects, ts, tm, tp, tc);
 			break;
 		}
-
 		default:
 			break;
 		}

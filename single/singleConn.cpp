@@ -5,10 +5,11 @@
 
 using namespace std;
 
-const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/single.txt";
+const string CONN_FILE = "../connection_data/connection.data";
+const string OUT_FILE = "../results/single.txt";
 
-const char *QUERY = "SELECT * FROM pg_database;";
+int NUM_CONNECTS = 10;
+const char *QUERY = "SELECT * FROM table100;";
 
 
 void readParamsFromFile(const string filename, 
@@ -38,14 +39,37 @@ void writeParamsToFile(const string filename, const double seconds)
 	cout << "Data was written to file!\n";
 }
 
-int main(int argc, char *argv[]) 
+int connect(string &host, string &port, 
+			 string &dbName, string &user, string &password)
 {
-	if (argc != 2) {
-		cout << "Input the number of connections!";
+	PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
+								dbName.c_str(), user.c_str(), password.c_str());
+
+	if (PQstatus(conn) != CONNECTION_OK) {
+		PQfinish(conn);
+		cout << "Can't open database: " << PQerrorMessage(conn) << endl;
 		return 1;
 	}
 
-	int numConnects = strtol(argv[1], NULL, 10);
+	PGresult *res = PQexec(conn, QUERY);
+	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+		PQclear(res);
+		PQfinish(conn);
+		cout << "Database query completed with an error: " << PQresultStatus(res) << endl;
+		return 1;
+	}
+
+	PQclear(res);
+	PQfinish(conn);
+
+	return 0;
+}
+
+int main(int argc, char *argv[]) 
+{
+	if (argc == 2) {
+		NUM_CONNECTS = strtol(argv[1], NULL, 10);
+	}
 
 	string host, port, dbName, user, password;
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
@@ -53,25 +77,10 @@ int main(int argc, char *argv[])
 	try {
 		clock_t begin = clock();
 
-		for (int i = 0; i < numConnects; i++) {
-			PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
-										dbName.c_str(), user.c_str(), password.c_str());
-
-			if (PQstatus(conn) != CONNECTION_OK) {
-				PQfinish(conn);
-				cout << "Can't open database: " << PQerrorMessage(conn) << endl;
-				return 1;
+		for (int i = 0; i < NUM_CONNECTS; i++) {
+			if (!connect(host, port, dbName, user, password)) {
+				break;
 			}
-
-			PGresult *res = PQexec(conn, QUERY);
-			if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-				PQclear(res);
-				cout << "Database query completed with an error: " << PQresultStatus(res) << endl;
-				return 1;
-			}
-
-			PQclear(res);
-			PQfinish(conn);
 		}
 		
 		clock_t end = clock();
