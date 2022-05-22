@@ -4,8 +4,6 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/custom.txt";
-
 static const char *QUERY = "SELECT * FROM table100;";
 
 void connectFunction(PGconn *conn, const int idx)
@@ -25,7 +23,7 @@ void connectFunction(PGconn *conn, const int idx)
 	PQclear(res);
 }
 
-int customConn(const int numThreads) 
+double customConn(const int numThreads) 
 {
 	string host, port, dbName, user, password;
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
@@ -50,10 +48,7 @@ int customConn(const int numThreads)
 
 		clock_t end = clock();
 		
-		double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
-		cout << "\nTime: " << seconds << endl;
-		writeParamsToFile(OUT_FILE, seconds);	
-
+		double seconds = (double)(end - begin) / CLOCKS_PER_SEC;	
 		return seconds;
 	} 
 

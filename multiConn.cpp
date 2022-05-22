@@ -4,8 +4,6 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/multi.txt";
-
 static const char *QUERY = "SELECT * FROM table100;";
 
 void connectFunction(const string host, const string port, const string dbName, 
@@ -31,7 +29,7 @@ void connectFunction(const string host, const string port, const string dbName,
 	PQfinish(conn);
 }
 
-void multiConn(const int numThreads) 
+double multiConn(const int numThreads) 
 {
 	string host, port, dbName, user, password;
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
@@ -52,11 +50,11 @@ void multiConn(const int numThreads)
 		clock_t end = clock();
 		
 		double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
-		cout << "\nTime: " << seconds << endl;
-		writeParamsToFile(OUT_FILE, seconds);	
+		return seconds;
 	} 
 
 	catch (const std::exception &er) {
 		cerr << er.what() << endl;
+		return 1;
 	}
 }

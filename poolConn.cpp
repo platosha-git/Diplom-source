@@ -4,8 +4,6 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/custom.txt";
-
 static const char *QUERY = "SELECT * FROM table100;";
 
 void connectFunction(shared_ptr<PGBackend> pgbackend)
@@ -24,13 +22,13 @@ void connectFunction(shared_ptr<PGBackend> pgbackend)
 }
 
 
-int poolConn(const int numThreads)
+double poolConn(const int numThreads)
 {
 	string host, port, dbName, user, password;
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
 
 	try {
-		auto pgbackend = make_shared<PGBackend>();
+		auto pgbackend = make_shared<PGBackend>(host, port, dbName, user, password);
 		thread thr[numThreads];
 
 		clock_t begin = clock();
@@ -45,10 +43,7 @@ int poolConn(const int numThreads)
 
 		clock_t end = clock();
 
-		double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
-		cout << "\nTime: " << seconds << endl;
-		writeParamsToFile(OUT_FILE, seconds);	
-
+		double seconds = (double)(end - begin) / CLOCKS_PER_SEC;	
 		return seconds;
 	}
 

@@ -4,8 +4,6 @@
 using namespace std;
 
 const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/single.txt";
-
 static const char *QUERY = "SELECT * FROM table100;";
 
 int connect(string &host, string &port, 
@@ -34,7 +32,7 @@ int connect(string &host, string &port,
 	return 0;
 }
 
-void singleConn(const int numConnects) 
+double singleConn(const int numConnects) 
 {
 	string host, port, dbName, user, password;
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
@@ -51,11 +49,11 @@ void singleConn(const int numConnects)
 		clock_t end = clock();
 
 		double seconds = (double)(end - begin) / CLOCKS_PER_SEC;
-		cout << "\nTime: " << seconds << endl;
-		writeParamsToFile(OUT_FILE, seconds);	
+		return seconds;
 	} 
 
 	catch (const std::exception &er) {
 		cerr << er.what() << endl;
+		return 1;
 	}
 }

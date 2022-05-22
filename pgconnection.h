@@ -8,20 +8,13 @@
 class PGConnection
 {
 public:
-    PGConnection();
+    PGConnection(const std::string host, const std::string port, 
+                 const std::string dbName, const std::string user, const std::string password);
     std::shared_ptr<PGconn> connection() const;
 
 private:
     void establish_connection();
-
-    std::string host = "127.0.0.1";
-    int port = 5432;
-    std::string dbName = "conn";
-    std::string user = "postgres";
-    std::string password = "22rfrnec";
-
     std::shared_ptr<PGconn>  m_connection;
 };
-
 
 #endif //PGCONNECTION_H

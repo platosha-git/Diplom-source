@@ -6,11 +6,11 @@
 
 using namespace std;
 
-const string CONN_FILE = "connection_data/connection.data";
-const string OUT_FILE = "results/multi10.txt";
+const string CONN_FILE = "../connection_data/connection.data";
+const string OUT_FILE = "../results/multi10.txt";
 
-const int NUM_CONNECTS = 10;
-const char *QUERY = "SELECT * FROM pg_database;";
+const int NUM_THREADS = 1000;
+const char *QUERY = "SELECT * FROM table100;";
 
 void readParamsFromFile(const string filename, 
 	string &host, string &port, 
@@ -43,7 +43,7 @@ void connectFunction(const string host, const string port, const string dbName,
 					 const string user, const string password)
 {
 	PGconn *conn = PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
-										dbName.c_str(), user.c_str(), password.c_str());
+								dbName.c_str(), user.c_str(), password.c_str());
 
 	if (PQstatus(conn) != CONNECTION_OK) {
 		PQfinish(conn);
@@ -68,15 +68,15 @@ int main(void)
 	readParamsFromFile(CONN_FILE, host, port, dbName, user, password);
 
 	try {
-		thread thr[NUM_CONNECTS];
+		thread thr[NUM_THREADS];
 
 		clock_t begin = clock();
 
-			for (int i = 0; i < NUM_CONNECTS; i++) {
+			for (int i = 0; i < NUM_THREADS; i++) {
 				thr[i] = thread(connectFunction, host, port, dbName, user, password);
 			}
 
-			for (int i = 0; i < NUM_CONNECTS; i++) {
+			for (int i = 0; i < NUM_THREADS; i++) {
 				thr[i].join();
 			}
 

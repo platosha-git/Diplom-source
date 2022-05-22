@@ -1,4 +1,4 @@
 g++ \
 -I/usr/local/pgsql/include \
--o multi.out multiConn.cpp \
+-o multi multiConn.cpp \
 -lpq -pthread

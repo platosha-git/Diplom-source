@@ -6,17 +6,19 @@
 
 using namespace std;
 
-PGBackend::PGBackend()
+PGBackend::PGBackend(const string host, const string port, 
+              		 const string dbName, const string user, const string password)
 {
-	createPool(); 
+	createPool(host, port, dbName, user, password); 
 }
 
-void PGBackend::createPool()
+void PGBackend::createPool(const string host, const string port, 
+              		 	   const string dbName, const string user, const string password)
 {
 	lock_guard<mutex> locker_( m_mutex );
 
 	for (int i = 0; i < POOL_SIZE; i++) {
-		m_pool.emplace(make_shared<PGConnection>());
+		m_pool.emplace(make_shared<PGConnection>(host, port, dbName, user, password));
 	}
 }
 

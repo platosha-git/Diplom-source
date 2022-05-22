@@ -3,6 +3,8 @@
 
 using namespace std;
 
+const int MAX_NUM_CONN = 1000;
+
 enum Mode
 {
 	exitMenu,
@@ -15,7 +17,7 @@ enum Mode
 
 void menu()
 {
-	//system("clear");
+	system("clear");
 
 	cout << "|_____________MODE______________|\n";
 	cout << "|                               |\n";
@@ -27,7 +29,20 @@ void menu()
 	cout << "| Full comparison.............5 |\n";
 	cout << "| Exit........................0 |\n";
 	cout << "|_______________________________|\n";
-	cout << "\n>> ";
+}
+
+void outputTable(const int numConn, 
+				const double single, const double multi, 
+				const double pool, const double custom)
+{
+	cout << endl << numConn << " connects\n";
+
+	cout << "            Time     |    Memory    \n";
+	cout << "------------------------------------\n";
+	cout << "single    " << single << endl;
+	cout << "multi     " << multi << endl;
+	cout << "pool      " << pool << endl;
+	cout << "custom    " << custom << endl;
 }
 
 int getNumber(const string inputMsg)
@@ -43,21 +58,11 @@ int getNumber(const string inputMsg)
 int getNumConnects()
 {
 	int numConnects = 0;
-	while (numConnects < 1 || numConnects > 1000) {
+	while (numConnects < 1 || numConnects > MAX_NUM_CONN) {
 		numConnects = getNumber("Input the number of connections (1-1000): ");
 	}
 
 	return numConnects;
-}
-
-int getNumThreads()
-{
-	int numThreads = 0;
-	while (numThreads < 1 || numThreads > 500) {
-		numThreads = getNumber("Input the number of threads (1-500): ");
-	}
-
-	return numThreads;
 }
 
 int main(void)
@@ -66,7 +71,7 @@ int main(void)
 
 	int choose = -1;
 	while (true) {
-		
+		cout << "\n>> ";		
 		cin >> choose;
 
 		if (choose < single || choose > compare) {
@@ -75,29 +80,35 @@ int main(void)
 
 		int numConnects = getNumConnects();
 
-		int numThreads = 0;
-		if (choose != single) {
-			numThreads = getNumThreads();
-		}
-
 		switch (choose) {
 		case(single): {
-			singleConn(numConnects);
+			double resS = singleConn(numConnects);
+			cout << "\nTime: " << resS << endl;
 			break;
 		}
 		case(multi): {
-			multiConn(numThreads);
+			double resM = multiConn(numConnects);
+			cout << "\nTime: " << resM << endl;
 			break;
 		}
 		case(pool): {
-			poolConn(numThreads);
+			double resP = poolConn(numConnects);
+			cout << "\nTime: " << resP << endl;
 			break;
 		}
 		case(custom): {
-			customConn(numThreads);
+			double resC = customConn(numConnects);
+			cout << "\nTime: " << resC << endl;
 			break;
 		}
-		//case(5):
+		case(compare): {
+			double resS = singleConn(numConnects);
+			double resM = multiConn(numConnects);
+			double resP = poolConn(numConnects);
+			double resC = customConn(numConnects);
+			outputTable(numConnects, resS, resM, resP, resC);
+			break;
+		}
 
 		default:
 			break;

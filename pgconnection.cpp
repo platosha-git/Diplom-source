@@ -2,9 +2,10 @@
 
 using namespace std;
 
-PGConnection::PGConnection()
+PGConnection::PGConnection(const string host, const string port, 
+                           const string dbName, const string user, const string password)
 {
-    m_connection.reset(PQsetdbLogin(host.c_str(), to_string(port).c_str(), nullptr, nullptr, 
+    m_connection.reset(PQsetdbLogin(host.c_str(), port.c_str(), nullptr, nullptr, 
                                     dbName.c_str(), user.c_str(), password.c_str()), &PQfinish);
 
     if (PQstatus(m_connection.get()) != CONNECTION_OK && 

@@ -9,21 +9,22 @@
 #include <libpq-fe.h>
 #include "pgconnection.h"
 
-using namespace std;
-
 class PGBackend
 {
 public:
-    PGBackend();
-    shared_ptr<PGConnection> connection();
-    void freeConnection(shared_ptr<PGConnection>);
+    PGBackend(const std::string host, const std::string port, 
+              const std::string dbName, const std::string user, const std::string password);
+    
+    std::shared_ptr<PGConnection> connection();
+    void freeConnection(std::shared_ptr<PGConnection>);
 
 private:
-    void createPool();
+    void createPool(const std::string host, const std::string port, 
+                    const std::string dbName, const std::string user, const std::string password);
     
-    mutex m_mutex;
-    condition_variable m_condition;
-    queue<shared_ptr<PGConnection>> m_pool;
+    std::mutex m_mutex;
+    std::condition_variable m_condition;
+    std::queue<std::shared_ptr<PGConnection>> m_pool;
 
     const int POOL_SIZE = 10;
 };

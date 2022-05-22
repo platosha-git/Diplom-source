@@ -7,9 +7,9 @@
 #include <ctime>
 #include "iofile.h"
 
-void singleConn(const int numConnects);
-void multiConn(const int numThreads);
-int poolConn(const int numThreads);
-int customConn(const int numThreads);
+double singleConn(const int numConnects);
+double multiConn(const int numThreads);
+double poolConn(const int numThreads);
+double customConn(const int numThreads);
 
 #endif //MULTI_H
