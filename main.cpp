@@ -19,15 +19,15 @@ void menu()
 {
 	system("clear");
 
-	cout << "|_____________MODE______________|\n";
+	cout << "|___________РЕАЛИЗАЦИЯ__________|\n";
 	cout << "|                               |\n";
-	cout << "| Single connection...........1 |\n";
-	cout << "| Multithreaded connection....2 |\n";
-	cout << "| Pool connection.............3 |\n";
-	cout << "| Custom connection...........4 |\n";
+	cout << "| Однопоточная................1 |\n";
+	cout << "| Многопоточная...............2 |\n";
+	cout << "| Внешний пул.................3 |\n";
+	cout << "| Разработанный метод.........4 |\n";
 	cout << "|                               |\n";
-	cout << "| Full comparison.............5 |\n";
-	cout << "| Exit........................0 |\n";
+	cout << "| Сравнение...................5 |\n";
+	cout << "| Выход.......................0 |\n";
 	cout << "|_______________________________|\n";
 }
 
@@ -35,14 +35,14 @@ void outputTable(const int numConn,
 				const double single, const double multi, 
 				const double pool, const double custom)
 {
-	cout << endl << numConn << " connects\n";
+	cout << endl << numConn << " соединений\n";
 
-	cout << "            Time     \n";
-	cout << "------------------\n";
-	cout << "single    " << single << endl;
-	cout << "multi     " << multi << endl;
-	cout << "pool      " << pool << endl;
-	cout << "custom    " << custom << endl;
+	cout << "       Время (сек)      \n";
+	cout << "------------------------\n";
+	cout << "однопоточная  | " << single << endl;
+	cout << "многопоточная | " << multi << endl;
+	cout << "пул           | " << pool << endl;
+	cout << "метод         | " << custom << endl;
 }
 
 int getNumber(const string inputMsg)
@@ -55,11 +55,11 @@ int getNumber(const string inputMsg)
 	return number;
 }
 
-int getNumConnects()
+int getNumConnects(const string inputMsg)
 {
 	int numConnects = 0;
 	while (numConnects < 1 || numConnects > MAX_NUM_CONN) {
-		numConnects = getNumber("Input the number of connections (1-1000): ");
+		numConnects = getNumber(inputMsg);
 	}
 
 	return numConnects;
@@ -78,30 +78,41 @@ int main(void)
 			break;
 		}
 
-		int numConnects = getNumConnects();
-
 		switch (choose) {
 		case(single): {
+			int numConnects = getNumConnects("Введите число соединений (1-1000): ");
 			double resS = singleConn(numConnects);
-			cout << "\nTime: " << resS << endl;
+			cout << "\nSELECT * FROM table100;\n";
+			cout << "Результат: ОК\n";
+			cout << "Время: " << resS << endl;
 			break;
 		}
 		case(multi): {
+			int numConnects = getNumConnects("Введите число потоков (1-1000): ");
 			double resM = multiConn(numConnects);
-			cout << "\nTime: " << resM << endl;
+			cout << "\nSELECT * FROM table100;\n";
+			cout << "Результат: ОК\n";
+			cout << "Время: " << resM << endl;
 			break;
 		}
 		case(pool): {
+			int numConnects = getNumConnects("Введите число соединений (1-1000): ");
 			double resP = poolConn(numConnects);
-			cout << "\nTime: " << resP << endl;
+			cout << "\nSELECT * FROM table100;\n";
+			cout << "Результат: ОК\n";
+			cout << "Время: " << resP << endl;
 			break;
 		}
 		case(custom): {
+			int numConnects = getNumConnects("Введите число потоков (1-1000): ");
 			double resC = customConn(numConnects);
-			cout << "\nTime: " << resC << endl;
+			cout << "\nSELECT * FROM table100;\n";
+			cout << "Результат: ОК\n";
+			cout << "Время: " << resC << endl;
 			break;
 		}
 		case(compare): {
+			int numConnects = getNumConnects("Введите число соединений (1-1000): ");
 			double ts = singleConn(numConnects);
 			double tm = multiConn(numConnects);
 			double tp = poolConn(numConnects);

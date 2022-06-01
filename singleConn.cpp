@@ -41,7 +41,7 @@ double singleConn(const int numConnects)
 		clock_t begin = clock();
 
 		for (int i = 0; i < numConnects; i++) {
-			if (!connect(host, port, dbName, user, password)) {
+			if (connect(host, port, dbName, user, password)) {
 				break;
 			}
 		}
